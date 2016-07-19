@@ -6,6 +6,7 @@
  */
 
 #include "../inc/OneWireDevice.h"
+#include "string.h" // for memcpy
 
 /*
  * Initializes this OneWire slave.

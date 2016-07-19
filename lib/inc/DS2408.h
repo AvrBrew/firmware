@@ -80,26 +80,48 @@ public:
     }
 
     /**
-     * Reads the pio state of a given channel.
+     * Reads the pin state of a given channel.
      * Note that for a read to make sense the latch must be off (value written is 1).
      * @param pio channel number 0-7
      * @param fromCache when true, the bit is returned from cache, without communicating with the device
-     * @returns state of the output pin for the given pio
+     * @returns state of the output pin for the given channel
      */
     bool readPioBit(uint8_t pos, bool fromCache = false) {
-    	if(!fromCache){
-			readPios();
-		}
-		return getBit(regCache.pio , pos);
+		return getBit(readPios(fromCache) , pos);
     }
 
     /**
-     * Performs a simultaneous read of all I/O pins and also writes the result to the pio cache.
+     * Performs a simultaneous read of all I/O pins.
+     * @param fromCache when true, the bit is returned from cache, without communicating with the device
      * @returns bit field with all pio states
      */
-    uint8_t readPios() {
-        regCache.pio  = accessRead();
+    uint8_t readPios(bool fromCache = false) {
+    	if(!fromCache){
+			update(); // use update instead of accessRead(), because it has error checking
+		}
         return regCache.pio;
+    }
+
+    /**
+     * Reads the latch state of a given channel.
+     * @param channel number 0-7
+     * @param fromCache when true, the bit is returned from cache, without communicating with the device
+     * @returns state of the latch for the given channel
+     */
+    bool readLatchBit(uint8_t pos, bool fromCache = false) {
+        return getBit(readLatches(fromCache) , pos);
+    }
+
+    /**
+     * Performs a simultaneous read of all latches.
+     * @param fromCache when true, the bit is returned from cache, without communicating with the device
+     * @returns bit field with all pio states
+     */
+    uint8_t readLatches(bool fromCache = false) {
+        if(!fromCache){
+            update(); // use update instead of accessRead(), because it has error checking
+        }
+        return regCache.latch;
     }
 
     /**
@@ -143,10 +165,25 @@ public:
      */
     bool accessWrite(uint8_t latches, uint8_t maxTries = 3);
 
-    /*
-     * Updates all cache registers by reading them from the device
+    /**
+     * Updates all cache registers by reading them from the device.
+     * Performs CRC checking on communication and sets the connect state to false on CRC error or to true on success.
      */
     void update();
+
+    /**
+     * @return cached state of all I/O pins
+     */
+    uint8_t getPioCache(){
+    	return regCache.pio;
+    }
+
+    /**
+     * @return cached state of all latches
+     */
+    uint8_t getLatchCache(){
+    	return regCache.latch;
+    }
 
 private:
     // cache of all of the DS2408 status registers

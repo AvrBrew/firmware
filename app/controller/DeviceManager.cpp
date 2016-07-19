@@ -130,7 +130,10 @@ void * DeviceManager::createDevice(DeviceConfig & config,
 
 #if BREWPI_DS2408
         case DEVICE_HARDWARE_ONEWIRE_2408 :
-            return new ValveController(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.pio);
+            // TODO: check whether a DS2408 is already available and don't create a new hardware device in that case
+            DS2408 * hwDevice = new DS2408();
+            hwDevice->init(oneWireBus(config.hw.pinNr), config.hw.address);
+            return new ValveController(*hwDevice, config.hw.offset.pio);
 
 #endif
 
@@ -855,9 +858,9 @@ inline void DeviceManager::readValve(DeviceConfig::Hardware hw,
                                      char * out)
 {
     OneWire * bus = oneWireBus(hw.pinNr);
-    ValveController valve(
-        bus, hw.address,
-        hw.offset.pio);
+    DS2408 && hwDevice = DS2408();
+    hwDevice.init(bus,hw.address);
+    ValveController valve(hwDevice, hw.offset.pio);
     uint8_t valveState = valve.read(true);
     sprintf_P(out, STR_FMT_U, (unsigned int) valveState);
 }
@@ -865,10 +868,10 @@ inline void DeviceManager::readValve(DeviceConfig::Hardware hw,
 inline void DeviceManager::writeValve(DeviceConfig::Hardware hw, uint8_t value)
 {
     OneWire * bus = oneWireBus(hw.pinNr);
-    ValveController valve(
-        bus, hw.address,
-        hw.offset.pio);
-    valve.write(ValveController::ValveActions(value));
+    DS2408 && hwDevice = DS2408();
+    hwDevice.init(bus,hw.address);
+    ValveController valve(hwDevice, hw.offset.pio);
+    valve.write(value);
 }
 
 inline void DeviceManager::writePin(DeviceConfig::Hardware hw, uint8_t value)
