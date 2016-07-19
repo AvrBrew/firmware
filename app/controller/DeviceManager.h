@@ -172,6 +172,7 @@ inline DeviceOwner deviceOwner(DeviceFunction id)
     return (id == 0) ? DEVICE_OWNER_NONE : (id >= DEVICE_BEER_FIRST) ? DEVICE_OWNER_BEER : DEVICE_OWNER_CHAMBER;
 }	
 
+static const uint16_t PWM_PERIODS[] = {4, 10, 20, 60, 120, 180, 300, 600, 1200, 1800, 2400, 3600, 7200, 14400};
 /*
  * A union of all device types.
  */	
@@ -195,21 +196,25 @@ struct DeviceConfig
 		 */
         union Settings
         {
-			temp_t calibration;	// for temp sensors (deviceHardware==2), calibration adjustment to add to sensor readings
+			struct{
+				temp_t calibration;	// for temp sensors (deviceHardware==2), calibration adjustment to add to sensor readings
+			} sensor;
+
 			struct{
 				uint8_t pio; // for DS2413 or DS2408 : the pio number (0,1), for chosing output A or B.
 				uint8_t val; // for manual actuators : the stored value
-			} channel;
+				uint8_t period; // for pwm actuators: the period (selected from a drop-down menu) and loaded from PWM_PERIODS
+			} actuator;
+
 			Settings(){} // constructor needed because temp_t constructor is non-trivial
-			Settings(const Settings& c){
-				calibration = c.calibration; // copy bigger type
+			Settings(const Settings& c){  // copy bigger type
+				actuator.pio = c.actuator.pio;
+				actuator.val = c.actuator.val;
+				actuator.period = c.actuator.period;
 			}
 		} settings;
 
 	} hw;
-
-
-	bool reserved2;
 };
 
 
