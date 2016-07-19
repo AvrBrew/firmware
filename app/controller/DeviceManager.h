@@ -190,22 +190,21 @@ struct DeviceConfig
 		DeviceAddress address;					// for onewire devices, if address[0]==0 then use the first matching device type, otherwise use the device with the specific address
 
         /*
-         *  The pio and sensor calibration are never needed at the same time so they are a union.
+         *  The pio/val and sensor calibration are never needed at the same time so they are a union.
 		 * To ensure the eeprom format is stable when including/excluding DS2413 support, ensure all fields are the same size.
 		 */
-        union Offset
+        union Settings
         {
-
-		temp_t calibration;	// for temp sensors (deviceHardware==2), calibration adjustment to add to sensor readings
-        #if BREWPI_DS2413 || BREWPI_DS2408
-                uint8_t pio;                        // for ds2413 (deviceHardware==3) : the pio number (0,1)
-        #endif
-		Offset(){} // needed because temp_t constructor is non-trivial
-		Offset(const Offset& o){
-		    calibration = o.calibration; // copy bigger type
-		}
-		} offset;
-
+			temp_t calibration;	// for temp sensors (deviceHardware==2), calibration adjustment to add to sensor readings
+			struct{
+				uint8_t pio; // for DS2413 or DS2408 : the pio number (0,1), for chosing output A or B.
+				uint8_t val; // for manual actuators : the stored value
+			} channel;
+			Settings(){} // constructor needed because temp_t constructor is non-trivial
+			Settings(const Settings& c){
+				calibration = c.calibration; // copy bigger type
+			}
+		} settings;
 
 	} hw;
 

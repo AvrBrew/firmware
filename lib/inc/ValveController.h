@@ -138,16 +138,41 @@ public:
         return (getAction() << 2 | getState() );
     }
 
+    /**
+     * Apply a new motor state to the valve.
+     * @param action the new motor state (VALVE_OPENING, VALVE_CLOSING or VALVE_IDLE)
+     */
     void write(uint8_t action);
 
+    /**
+     * Open the valve
+     */
     inline void open(){
         write(VALVE_OPENING);
     }
+
+    /**
+     * Close the valve
+     */
     inline void close(){
         write(VALVE_CLOSING);
     }
-    inline void idle(){ // can be used to stop the valve half way
+
+    /**
+     * Stop opening or closing the valve. The valves themselves automatically stop driving the motor with an internal switch.
+     * This function stops the H-bridge from driving the motor. It could be used to stop the valve halfway.
+     */
+    inline void idle(){
         write(VALVE_IDLE);
+    }
+
+    /**
+     * This function can be used to get a reference to the DS2408, so it can be shared with another valve controller.
+     * The caller can also use it to destroy the DS2408 object when it is not used by any valve controller anymore.
+     * @return reference to the DS2408.
+     */
+    DS2408 & getHardwareDevice(){
+    	return device;
     }
 
 protected:

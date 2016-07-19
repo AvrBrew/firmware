@@ -111,7 +111,7 @@ void * DeviceManager::createDevice(DeviceConfig & config,
             return new ExternalTempSensor(
                 false);    // initially disconnected, so init doesn't populate the filters with the default value of 0.0
 #else
-            return new OneWireTempSensor(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.calibration);
+            return new OneWireTempSensor(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.settings.calibration);
 #endif
 
 #if BREWPI_DS2413
@@ -124,7 +124,7 @@ void * DeviceManager::createDevice(DeviceConfig & config,
                 return new BoolActuator();
             }
 #else
-            return new ActuatorOneWire(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.offset.pio, config.hw.invert);
+            return new ActuatorOneWire(oneWireBus(config.hw.pinNr), config.hw.address, config.hw.settings.channel.pio, config.hw.invert);
 #endif
 #endif
 
@@ -133,7 +133,7 @@ void * DeviceManager::createDevice(DeviceConfig & config,
             // TODO: check whether a DS2408 is already available and don't create a new hardware device in that case
             DS2408 * hwDevice = new DS2408();
             hwDevice->init(oneWireBus(config.hw.pinNr), config.hw.address);
-            return new ValveController(*hwDevice, config.hw.offset.pio);
+            return new ValveController(*hwDevice, config.hw.settings.channel.pio);
 
 #endif
 
@@ -477,7 +477,7 @@ void DeviceManager::parseDeviceDefinition(Stream & p)
     assignIfSet(dev.pinNr, &target.hw.pinNr);
 
 #if BREWPI_DS2413
-    assignIfSet(dev.pio, &target.hw.offset.pio);
+    assignIfSet(dev.pio, &target.hw.settings.channel.pio);
 #endif
 
     assignIfSet(dev.invert, (uint8_t *) &target.hw.invert);
@@ -702,12 +702,12 @@ void DeviceManager::printDevice(device_slot_t  slot,
             || config.deviceHardware == DEVICE_HARDWARE_ONEWIRE_2408
 #endif
             ){
-        printAttrib(p, DEVICE_ATTRIB_PIO, config.hw.offset.pio);
+        printAttrib(p, DEVICE_ATTRIB_PIO, config.hw.settings.channel.pio);
     }
 #endif
 
     if (config.deviceHardware == DEVICE_HARDWARE_ONEWIRE_TEMP){
-        config.hw.offset.calibration.toTempString(buf, 3, 8, tempControl.cc.tempFormat, false);
+        config.hw.settings.calibration.toTempString(buf, 3, 8, tempControl.cc.tempFormat, false);
         p.print(",\"j\":");
         p.print(buf);
     }
@@ -788,7 +788,7 @@ device_slot_t findHardwareDevice(DeviceConfig & find)
 #if BREWPI_DS2413
                 case DEVICE_HARDWARE_ONEWIRE_2413 :
                 case DEVICE_HARDWARE_ONEWIRE_2408 :
-                    match &= find.hw.offset.pio == config.hw.offset.pio;
+                    match &= find.hw.settings.channel.pio == config.hw.settings.channel.pio;
 
                     // fall through
 #endif
@@ -860,7 +860,7 @@ inline void DeviceManager::readValve(DeviceConfig::Hardware hw,
     OneWire * bus = oneWireBus(hw.pinNr);
     DS2408 && hwDevice = DS2408();
     hwDevice.init(bus,hw.address);
-    ValveController valve(hwDevice, hw.offset.pio);
+    ValveController valve(hwDevice, hw.settings.channel.pio);
     uint8_t valveState = valve.read(true);
     sprintf_P(out, STR_FMT_U, (unsigned int) valveState);
 }
@@ -870,7 +870,7 @@ inline void DeviceManager::writeValve(DeviceConfig::Hardware hw, uint8_t value)
     OneWire * bus = oneWireBus(hw.pinNr);
     DS2408 && hwDevice = DS2408();
     hwDevice.init(bus,hw.address);
-    ValveController valve(hwDevice, hw.offset.pio);
+    ValveController valve(hwDevice, hw.settings.channel.pio);
     valve.write(value);
 }
 
@@ -889,13 +889,13 @@ inline void DeviceManager::readPin(DeviceConfig::Hardware hw, char * out){
 inline void DeviceManager::writeOneWirePin(DeviceConfig::Hardware hw, uint8_t value)
 {
     OneWire * bus = oneWireBus(hw.pinNr);
-    ActuatorOneWire pin(bus, hw.address, hw.offset.pio, hw.invert);
+    ActuatorOneWire pin(bus, hw.address, hw.settings.channel.pio, hw.invert);
     pin.write(value);
 }
 
 inline void DeviceManager::readOneWirePin(DeviceConfig::Hardware hw, char * out){
     OneWire * bus = oneWireBus(hw.pinNr);
-    ActuatorOneWire pin(bus, hw.address, hw.offset.pio, hw.invert);
+    ActuatorOneWire pin(bus, hw.address, hw.settings.channel.pio, hw.invert);
     unsigned int state = pin.isActive();
     sprintf_P(out, STR_FMT_U, state);
 }
@@ -1056,7 +1056,7 @@ void DeviceManager::enumerateOneWireDevices(EnumerateHardware & h,
 #endif
                         // enumerate each pin separately
                         for (uint8_t i = 0; i < 2; i++){
-                            config.hw.offset.pio = i;
+                            config.hw.settings.channel.pio = i;
 
                             handleEnumeratedDevice(config, h, callback, info);
                         }
