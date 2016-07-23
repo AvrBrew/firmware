@@ -39,7 +39,7 @@ public:
         setMutex(nullptr);
     }
 
-    uint8_t type() const override final { return ACTUATOR_TOGGLE_MUTEX; };
+    ActuatorType type() const override final { return ACTUATOR_TOGGLE_MUTEX; };
 
     void update() override final {
         target->update();

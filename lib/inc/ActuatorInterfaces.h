@@ -24,7 +24,7 @@
 #include "temperatureFormats.h"
 #include "ControllerMixins.h"
 
-enum {
+enum ActuatorType {
     ACTUATOR_RANGE,
     ACTUATOR_TOGGLE,
     ACTUATOR_THRESHOLD,
@@ -43,7 +43,7 @@ public:
     Actuator() = default;
     virtual ~Actuator() = default;
 
-    virtual uint8_t type() const = 0;
+    virtual ActuatorType type() const = 0;
     virtual void update() = 0; // period update (every second)
     virtual void fastUpdate() = 0; // fast update (as often as possible)
 
@@ -59,7 +59,7 @@ class ActuatorDigital : public virtual Actuator
 public:
     ActuatorDigital() = default;
     virtual ~ActuatorDigital() = default;
-    virtual uint8_t type() const override { return ACTUATOR_TOGGLE; };
+    virtual ActuatorType type() const override { return ACTUATOR_TOGGLE; };
     virtual void setActive(bool active) = 0;
     virtual bool isActive() const = 0;
 
@@ -75,7 +75,7 @@ class ActuatorRange : public virtual Actuator
 public:
     ActuatorRange() = default;
     virtual ~ActuatorRange() = default;
-    virtual uint8_t type() const override { return ACTUATOR_RANGE; };
+    virtual ActuatorType type() const override { return ACTUATOR_RANGE; };
     virtual void setValue(temp_t const& val) = 0;
     virtual temp_t getValue() const = 0; // get set value
     virtual temp_t readValue() const = 0; // read actual achieved value
@@ -91,7 +91,7 @@ class ActuatorThreshold : public virtual Actuator
 {
 ActuatorThreshold() = default;
     virtual ~ActuatorThreshold() = default;
-    virtual uint8_t type() const override { return ACTUATOR_THRESHOLD; };
+    virtual ActuatorType type() const override { return ACTUATOR_THRESHOLD; };
     virtual void setValue(temp_t const& val) = 0;
     virtual temp_t readValue() const = 0;
     virtual temp_t onValue() const = 0;

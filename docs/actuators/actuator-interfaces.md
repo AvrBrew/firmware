@@ -5,7 +5,7 @@ The `Actuator` interface is inherited by all actuators. Next to that, all Actuat
 ### Actuator
 Interface for all actuators, only supports 2 interface functions:
 
-    virtual uint8_t type() const = 0;
+    virtual ActuatorType type() const = 0;
     virtual void update() = 0;
 
 ### ActuatorDigital
