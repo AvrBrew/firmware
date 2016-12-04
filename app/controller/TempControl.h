@@ -112,7 +112,6 @@ enum states{
 	WAITING_FOR_PEAK_DETECT,	// 7
 	COOLING_MIN_TIME,			// 8
 	HEATING_MIN_TIME,			// 9
-	NUM_STATES
 };
 
 #define TC_STATE_MASK 0x7;	// 3 bits
