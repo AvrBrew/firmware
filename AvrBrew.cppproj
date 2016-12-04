@@ -12,9 +12,9 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>brewpi_avr</AssemblyName>
-    <Name>brewpi_avr</Name>
-    <RootNamespace>brewpi_avr</RootNamespace>
+    <AssemblyName>AvrBrew</AssemblyName>
+    <Name>AvrBrew</Name>
+    <RootNamespace>AvrBrew</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
@@ -152,6 +152,8 @@
     <PostBuildEvent>"C:\Program Files (x86)\Arduino\hardware\tools\avr\avr\bin\nm" --demangle --size-sort --print-size -r -td "$(OutputDirectory)\$(OutputFileName)$(OutputFileExtension)" &gt; $(OutputDirectory)\avr-size.txt</PostBuildEvent>
     <PreBuildEvent>
     </PreBuildEvent>
+    <OutputFileName>AvrBrew</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app\controller\AppConfigDefault.h">
