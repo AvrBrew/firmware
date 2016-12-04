@@ -1,6 +1,12 @@
 
 This is a fork of the main source code repository for the firmware on the BrewPi brewing temperature controller. It is designed solely for the Arduino controller (although it still contains spark specific code) and will build with Atmel Studio 7.
 
+My Arduino work is on the avr branch. This is the default branch so just getting the repository will automatically put you on the correct branch:
+
+git clone https://github.com/AvrBrew/firmware
+
+The avr branch was created from version 0.2.10 of the BrewPi firmware as this is the latest version that builds for the Arduino.
+
 ## Building the firmware for Arduino
 To build the firmware for Arduino, you will have to use [Atmel Studio](http://www.atmel.com/microsite/atmel_studio/). The repo includes an Atmel Studio 7 project.
 
